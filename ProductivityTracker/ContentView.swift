@@ -26,9 +26,29 @@ struct ContentView: View {
         ("8:00 PM", "8:30 PM"), ("8:30 PM", "9:00 PM"), ("9:00 PM", "9:30 PM"), ("9:30 PM", "10:00 PM"),
         ("10:00 PM", "10:30 PM"), ("10:30 PM", "11:00 PM"), ("11:00 PM", "11:30 PM"), ("11:30 PM", "12:00 AM")
     ]
+    
+    // Date formatter to display the current date
+    private var dateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .full
+        return formatter
+    }
 
     var body: some View {
         VStack {
+            // Title and Subtitle
+            VStack {
+                Text("Ashrith's Productivity Tracker")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
+                    .padding(.top, 20)
+                
+                Text(dateFormatter.string(from: Date()))
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                    .padding(.bottom, 10)
+            }
+            
             ScrollView {
                 VStack(alignment: .leading) {
                     ForEach($timeSlots) { $slot in
