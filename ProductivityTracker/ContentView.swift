@@ -127,46 +127,51 @@ struct ContentView: View {
         }
     }
     
-    // Export tasks to a CSV file
+    // Export tasks to a predefined or user-selected location
     func exportToCSV() {
         // Get the current date string in yyyy_mm_dd format for the filename
         let dateStringForFile = fileDateFormatter.string(from: Date())
         let fileName = "ProductivityTracker_\(dateStringForFile).csv"
         
-        // Set up the save panel
-        let savePanel = NSSavePanel()
-        savePanel.title = "Save your CSV file"
-        savePanel.allowedFileTypes = ["csv"]
-        savePanel.nameFieldStringValue = fileName
-
-        savePanel.begin { result in
-            if result == .OK, let url = savePanel.url {
-                // Get the current date for the CSV content
-                let dateStringForCSV = csvDateFormatter.string(from: Date())
-                
-                var csvText = "Date,\"Time Slot\",Task\n"
-                
-                for slot in timeSlots {
-                    let timeSlot = "\"\(slot.startTime) to \(slot.endTime)\""
-                    let newLine = "\(dateStringForCSV),\(timeSlot),\"\(slot.task)\"\n"
-                    csvText.append(newLine)
+        // Check if a save path is already stored in UserDefaults
+        if let savedPath = UserDefaults.standard.string(forKey: "csvSavePath") {
+            // Use the saved path to export the CSV
+            let fileURL = URL(fileURLWithPath: savedPath).appendingPathComponent(fileName)
+            writeCSV(to: fileURL)
+        } else {
+            // If no path is saved, ask the user to select a directory
+            let openPanel = NSOpenPanel()
+            openPanel.title = "Select a folder to save CSV files"
+            openPanel.canChooseFiles = false
+            openPanel.canChooseDirectories = true
+            
+            openPanel.begin { result in
+                if result == .OK, let url = openPanel.url {
+                    // Save the selected path to UserDefaults
+                    UserDefaults.standard.set(url.path, forKey: "csvSavePath")
+                    let fileURL = url.appendingPathComponent(fileName)
+                    writeCSV(to: fileURL)
                 }
-                
-                do {
-                    try csvText.write(to: url, atomically: true, encoding: .utf8)
-                    print("CSV file saved to: \(url.path)")
-                } catch {
-                    print("Failed to write CSV file: \(error)")
-                }
-            } else {
-                print("Save cancelled or failed.")
             }
         }
     }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
+    
+    // Write the CSV data to a specified file URL
+    func writeCSV(to fileURL: URL) {
+        let dateStringForCSV = csvDateFormatter.string(from: Date())
+        
+        var csvText = "Date,\"Time Slot\",Task\n"
+        
+        for slot in timeSlots {
+            let timeSlot = "\"\(slot.startTime) to \(slot.endTime)\""
+            let newLine = "\(dateStringForCSV),\(timeSlot),\"\(slot.task)\"\n"
+            csvText.append(newLine)
+        }
+        
+        do {
+            try csvText.write(to: fileURL, atomically: true, encoding: .utf8)
+            print("CSV file saved to: \(fileURL.path)")
+        } catch {
+            print("Failed to write CSV file: \(error)")
+        }
     }
-}
