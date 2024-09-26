@@ -73,6 +73,16 @@ struct ContentView: View {
                             .cornerRadius(10)
                     }
                     .padding()
+                    
+                    Button(action: exportToCSV) {
+                        Text("Export to CSV")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.green)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                    }
+                    .padding()
                 }
             }
         }
@@ -108,6 +118,26 @@ struct ContentView: View {
                     }
                 }
             }
+        }
+    }
+    
+    // Export tasks to a CSV file
+    func exportToCSV() {
+        let fileName = "ProductivityTracker.csv"
+        let path = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
+        
+        var csvText = "Start Time,End Time,Task\n"
+        
+        for slot in timeSlots {
+            let newLine = "\(slot.startTime),\(slot.endTime),\"\(slot.task)\"\n"
+            csvText.append(newLine)
+        }
+        
+        do {
+            try csvText.write(to: path, atomically: true, encoding: .utf8)
+            print("CSV file saved to: \(path)")
+        } catch {
+            print("Failed to write CSV file: \(error)")
         }
     }
 }
