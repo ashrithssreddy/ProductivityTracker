@@ -1,0 +1,36 @@
+
+# macOS
+.DS_Store
+
+# Xcode
+build/
+DerivedData/
+*.xcworkspace
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+!*.xcworkspace/contents.xcworkspacedata
+*.xcuserstate
+
+# Swift Package Manager
+Packages/
+Package.pins
+Package.resolved
+.swiftpm/xcode/package.xcworkspace/contents.xcworkspacedata
+
+# Swift Playgrounds
+timeline.xctimeline
+playground.xcplayground
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/Build/
+
+# Other
+*.plist
+*.mode1v3
+*.mode2v3
+*.perspectivev3
