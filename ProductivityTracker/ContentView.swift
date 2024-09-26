@@ -28,7 +28,7 @@ struct ContentView: View {
     ]
 
     var body: some View {
-        NavigationView {
+        VStack {
             ScrollView {
                 VStack(alignment: .leading) {
                     ForEach($timeSlots) { $slot in
@@ -55,9 +55,10 @@ struct ContentView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Productivity Tracker")
-            .onAppear(perform: loadTasks)
         }
+        .padding()
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // Make the content fill the window
+        .onAppear(perform: loadTasks)
     }
     
     // Save tasks to UserDefaults
@@ -96,4 +97,3 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
-
