@@ -42,7 +42,7 @@ struct ContentView: View {
         return formatter
     }
     
-    // Date formatter to include the date in the CSV
+    // Date formatter to include the date in the CSV and as the key for UserDefaults
     private var csvDateFormatter: DateFormatter {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -75,19 +75,12 @@ struct ContentView: View {
                             TextField("Enter task...", text: $slot.task)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .padding(.horizontal)
+                                .onChange(of: slot.task) { _ in
+                                    saveTasks()
+                                }
                         }
                         .padding(.vertical, 5)
                     }
-                    
-                    Button(action: saveTasks) {
-                        Text("Save Tasks")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                    .padding()
                     
                     Button(action: exportToCSV) {
                         Text("Export to CSV")
@@ -108,31 +101,29 @@ struct ContentView: View {
     
     // Save tasks to UserDefaults
     func saveTasks() {
-        // Convert timeSlots to a dictionary for UserDefaults
+        let dateString = csvDateFormatter.string(from: Date())
         let taskDict = timeSlots.reduce(into: [String: String]()) { dict, slot in
             let key = "\(slot.startTime)-\(slot.endTime)"
             dict[key] = slot.task
         }
-        UserDefaults.standard.set(taskDict, forKey: "dailyTasks")
+        UserDefaults.standard.set(taskDict, forKey: "tasks_\(dateString)")
     }
     
     // Load tasks from UserDefaults
     func loadTasks() {
+        let dateString = csvDateFormatter.string(from: Date())
+        
         // Initialize timeSlots with default times if it's empty
-        if timeSlots.isEmpty {
-            timeSlots = initialTimeData.map { TimeSlot(startTime: $0.0, endTime: $0.1, task: "") }
-        }
-
-        // Load saved tasks from UserDefaults
-        if let savedTasks = UserDefaults.standard.dictionary(forKey: "dailyTasks") as? [String: String] {
-            for (key, task) in savedTasks {
-                let times = key.split(separator: "-")
-                if times.count == 2, let start = times.first, let end = times.last {
-                    if let index = timeSlots.firstIndex(where: { $0.startTime == start && $0.endTime == end }) {
-                        timeSlots[index].task = task
-                    }
-                }
+        if let savedTasks = UserDefaults.standard.dictionary(forKey: "tasks_\(dateString)") as? [String: String] {
+            // Load saved tasks for the current date
+            timeSlots = initialTimeData.map { (startTime, endTime) in
+                let key = "\(startTime)-\(endTime)"
+                let task = savedTasks[key] ?? ""
+                return TimeSlot(startTime: startTime, endTime: endTime, task: task)
             }
+        } else {
+            // Initialize with default times for a new day
+            timeSlots = initialTimeData.map { TimeSlot(startTime: $0.0, endTime: $0.1, task: "") }
         }
     }
     
