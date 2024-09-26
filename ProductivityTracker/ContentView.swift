@@ -41,6 +41,13 @@ struct ContentView: View {
         formatter.dateFormat = "yyyy_MM_dd"
         return formatter
     }
+    
+    // Date formatter to include the date in the CSV
+    private var csvDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }
 
     var body: some View {
         VStack {
@@ -131,9 +138,9 @@ struct ContentView: View {
     
     // Export tasks to a CSV file
     func exportToCSV() {
-        // Get the current date string in yyyy_mm_dd format
-        let dateString = fileDateFormatter.string(from: Date())
-        let fileName = "ProductivityTracker_\(dateString).csv"
+        // Get the current date string in yyyy_mm_dd format for the filename
+        let dateStringForFile = fileDateFormatter.string(from: Date())
+        let fileName = "ProductivityTracker_\(dateStringForFile).csv"
         
         // Set up the save panel
         let savePanel = NSSavePanel()
@@ -143,10 +150,13 @@ struct ContentView: View {
 
         savePanel.begin { result in
             if result == .OK, let url = savePanel.url {
-                var csvText = "Start Time,End Time,Task\n"
+                // Get the current date for the CSV content
+                let dateStringForCSV = csvDateFormatter.string(from: Date())
+                
+                var csvText = "Date,Start Time,End Time,Task\n"
                 
                 for slot in timeSlots {
-                    let newLine = "\(slot.startTime),\(slot.endTime),\"\(slot.task)\"\n"
+                    let newLine = "\(dateStringForCSV),\(slot.startTime),\(slot.endTime),\"\(slot.task)\"\n"
                     csvText.append(newLine)
                 }
                 
@@ -168,4 +178,3 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
-
