@@ -1,4 +1,5 @@
 import SwiftUI
+import Cocoa // Import to use NSSavePanel
 
 // Define a struct to represent each time slot
 struct TimeSlot: Identifiable {
@@ -123,21 +124,30 @@ struct ContentView: View {
     
     // Export tasks to a CSV file
     func exportToCSV() {
-        let fileName = "ProductivityTracker.csv"
-        let path = FileManager.default.urls(for: .desktopDirectory, in: .userDomainMask)[0].appendingPathComponent(fileName)
-        
-        var csvText = "Start Time,End Time,Task\n"
-        
-        for slot in timeSlots {
-            let newLine = "\(slot.startTime),\(slot.endTime),\"\(slot.task)\"\n"
-            csvText.append(newLine)
-        }
-        
-        do {
-            try csvText.write(to: path, atomically: true, encoding: .utf8)
-            print("CSV file saved to: \(path)")
-        } catch {
-            print("Failed to write CSV file: \(error)")
+        // Set up the save panel
+        let savePanel = NSSavePanel()
+        savePanel.title = "Save your CSV file"
+        savePanel.allowedFileTypes = ["csv"]
+        savePanel.nameFieldStringValue = "ProductivityTracker.csv"
+
+        savePanel.begin { result in
+            if result == .OK, let url = savePanel.url {
+                var csvText = "Start Time,End Time,Task\n"
+                
+                for slot in timeSlots {
+                    let newLine = "\(slot.startTime),\(slot.endTime),\"\(slot.task)\"\n"
+                    csvText.append(newLine)
+                }
+                
+                do {
+                    try csvText.write(to: url, atomically: true, encoding: .utf8)
+                    print("CSV file saved to: \(url.path)")
+                } catch {
+                    print("Failed to write CSV file: \(error)")
+                }
+            } else {
+                print("Save cancelled or failed.")
+            }
         }
     }
 }
