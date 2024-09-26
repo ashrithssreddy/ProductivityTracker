@@ -34,6 +34,13 @@ struct ContentView: View {
         formatter.dateStyle = .full
         return formatter
     }
+    
+    // Date formatter to format the date for file name
+    private var fileDateFormatter: DateFormatter {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy_MM_dd"
+        return formatter
+    }
 
     var body: some View {
         VStack {
@@ -124,11 +131,15 @@ struct ContentView: View {
     
     // Export tasks to a CSV file
     func exportToCSV() {
+        // Get the current date string in yyyy_mm_dd format
+        let dateString = fileDateFormatter.string(from: Date())
+        let fileName = "ProductivityTracker_\(dateString).csv"
+        
         // Set up the save panel
         let savePanel = NSSavePanel()
         savePanel.title = "Save your CSV file"
         savePanel.allowedFileTypes = ["csv"]
-        savePanel.nameFieldStringValue = "ProductivityTracker.csv"
+        savePanel.nameFieldStringValue = fileName
 
         savePanel.begin { result in
             if result == .OK, let url = savePanel.url {
@@ -157,3 +168,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
