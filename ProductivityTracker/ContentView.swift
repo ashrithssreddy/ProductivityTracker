@@ -153,10 +153,11 @@ struct ContentView: View {
                 // Get the current date for the CSV content
                 let dateStringForCSV = csvDateFormatter.string(from: Date())
                 
-                var csvText = "Date,Start Time,End Time,Task\n"
+                var csvText = "Date,Time Slot,Task\n"
                 
                 for slot in timeSlots {
-                    let newLine = "\(dateStringForCSV),\(slot.startTime),\(slot.endTime),\"\(slot.task)\"\n"
+                    let timeSlot = "\(slot.startTime) to \(slot.endTime)"
+                    let newLine = "\(dateStringForCSV),\(timeSlot),\"\(slot.task)\"\n"
                     csvText.append(newLine)
                 }
                 
@@ -178,3 +179,4 @@ struct ContentView_Previews: PreviewProvider {
         ContentView()
     }
 }
+
