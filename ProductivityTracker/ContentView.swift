@@ -1,3 +1,4 @@
+
 import SwiftUI
 import Cocoa // Import to use NSSavePanel
 
@@ -175,3 +176,10 @@ struct ContentView: View {
             print("Failed to write CSV file: \(error)")
         }
     }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
+}
